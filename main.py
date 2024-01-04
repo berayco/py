@@ -10,7 +10,7 @@ def get_hex_color_codes(image):
     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
     # Resmi yeniden boyutlandırarak renkleri daha iyi algılamaya çalış
-    resized_image = cv2.resize(image, (20, 20), interpolation=cv2.INTER_AREA)
+    resized_image = cv2.resize(image, (40, 40), interpolation=cv2.INTER_AREA)
     pil_image = Image.fromarray(cv2.cvtColor(resized_image, cv2.COLOR_BGR2RGB))
 
     # 'P' moduna dönüştür
