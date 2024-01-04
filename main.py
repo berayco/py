@@ -5,16 +5,19 @@ import numpy as np
 from collections import Counter
 
 def get_hex_color_codes(image):
-    image = np.array(image.convert('RGB'))  # Arka planı olmayan resimler için
+    image = np.array(image.convert('RGB'))  # Convert to RGB for images without alpha channel
     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
     resized_image = cv2.resize(image, (40, 40), interpolation=cv2.INTER_AREA)
     pil_image = Image.fromarray(cv2.cvtColor(resized_image, cv2.COLOR_BGR2RGB))
 
-    colors = pil_image.getcolors(40*40)
+    # Convert the image to 'P' mode which will reduce the number of colors
+    pil_image = pil_image.convert('P', palette=Image.ADAPTIVE, colors=256)
+
+    colors = pil_image.getcolors(40*40) or []  # This ensures we don't get None
     total_pixels = sum(count for color, count in colors)
-    color_counts = Counter({'#{:02x}{:02x}{:02x}'.format(*color[1]): color[0] for color in colors})
+    color_counts = Counter({'#{:02x}{:02x}{:02x}'.format(*color): count for color, count in colors})
     most_common_colors = color_counts.most_common(20)
-    return [(color[0], color[1] / total_pixels * 100) for color in most_common_colors]
+    return [(color, count / total_pixels * 100) for color, count in most_common_colors]
 
 def display_color(hex_color, percentage):
     st.markdown(
