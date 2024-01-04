@@ -14,8 +14,7 @@ def get_hex_color_codes(image):
     pil_image = pil_image.convert('P', palette=Image.ADAPTIVE, colors=256)
 
     colors = pil_image.getcolors(40*40) or []  # This ensures we don't get None
-    if not colors:
-        return []  # Return an empty list if no colors are found
+    
 
     total_pixels = sum(count for color, count in colors)
     color_counts = Counter({'#{:02x}{:02x}{:02x}'.format(*color): count for color, count in colors if isinstance(color, tuple) and len(color) == 3})
