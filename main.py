@@ -5,16 +5,21 @@ import numpy as np
 from collections import Counter
 
 def get_hex_color_codes(image):
-    image = np.array(image.convert('RGB'))  # Convert to RGB for images without alpha channel
+    # Resmi RGB'ye dönüştür
+    image = np.array(image.convert('RGB'))
     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-    resized_image = cv2.resize(image, (100, 100), interpolation=cv2.INTER_AREA)  # Increased the size for more color detection
+
+    # Resmi yeniden boyutlandırarak renkleri daha iyi algılamaya çalış
+    resized_image = cv2.resize(image, (20, 20), interpolation=cv2.INTER_AREA)
     pil_image = Image.fromarray(cv2.cvtColor(resized_image, cv2.COLOR_BGR2RGB))
 
+    # 'P' moduna dönüştür
     pil_image = pil_image.convert('P', palette=Image.ADAPTIVE, colors=256)
 
-    colors = pil_image.getcolors(100*100) or []  # Increased the threshold for more colors
+    # Renkleri al ve bir Counter oluştur
+    colors = pil_image.getcolors(20*20) or []
     if not colors:
-        return []  # Return an empty list if no colors are found
+        return []  # Eğer renk bulunamazsa boş liste döndür
 
     total_pixels = sum(count for color, count in colors)
     color_counts = Counter({'#{:02x}{:02x}{:02x}'.format(*color): count for color, count in colors if isinstance(color, tuple) and len(color) == 3})
@@ -43,3 +48,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
