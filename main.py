@@ -7,14 +7,14 @@ from collections import Counter
 def get_hex_color_codes(image):
     image = np.array(image.convert('RGB'))  # Convert to RGB for images without alpha channel
     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-    resized_image = cv2.resize(image, (40, 40), interpolation=cv2.INTER_AREA)
+    resized_image = cv2.resize(image, (100, 100), interpolation=cv2.INTER_AREA)  # Increased the size for more color detection
     pil_image = Image.fromarray(cv2.cvtColor(resized_image, cv2.COLOR_BGR2RGB))
 
-    # Convert the image to 'P' mode which will reduce the number of colors
     pil_image = pil_image.convert('P', palette=Image.ADAPTIVE, colors=256)
 
-    colors = pil_image.getcolors(40*40) or []  # This ensures we don't get None
-    
+    colors = pil_image.getcolors(100*100) or []  # Increased the threshold for more colors
+    if not colors:
+        return []  # Return an empty list if no colors are found
 
     total_pixels = sum(count for color, count in colors)
     color_counts = Counter({'#{:02x}{:02x}{:02x}'.format(*color): count for color, count in colors if isinstance(color, tuple) and len(color) == 3})
@@ -33,12 +33,13 @@ def main():
     if uploaded_file is not None:
         image = Image.open(uploaded_file)
         hex_codes = get_hex_color_codes(image)
-        st.write("En Sık Bulunan 20 Hex Renk Kodu ve Yüzdelikleri:")
-        for hex_color, percentage in hex_codes:
-            display_color(hex_color, percentage)
+        if hex_codes:
+            st.write("En Sık Bulunan 20 Hex Renk Kodu ve Yüzdelikleri:")
+            for hex_color, percentage in hex_codes:
+                display_color(hex_color, percentage)
+        else:
+            st.write("Bu resimde yeterli renk çeşitliliği bulunamadı.")
         st.image(image, caption='Yüklenen Resim', use_column_width=True)
 
 if __name__ == "__main__":
     main()
-
-
