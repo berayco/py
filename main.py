@@ -14,14 +14,15 @@ def get_hex_color_codes(image, num_colors=20):
 
     # Renkleri HEX kodlarına dönüştür ve yüzdelerini hesapla
     total_pixels = len(pixels)
-    hex_colors = [(color, count / total_pixels * 100) for color, count in most_common_colors]
+    hex_colors = [{'hex': '#{0:02x}{1:02x}{2:02x}'.format(*color), 'percentage': count / total_pixels * 100} for color, count in most_common_colors]
     return hex_colors
 
-def display_color(hex_color, percentage):
-    # Renk kutusunu ve yüzdesini göster
-    st.markdown(
-        f"<div style='display: inline-block; margin: 10px; padding: 10px; background-color: {hex_color}; color: white; border-radius: 5px;'>{hex_color} - {percentage:.2f}%</div>", 
-        unsafe_allow_html=True)
+def display_colors(hex_colors):
+    # Renk kutularını ve yüzdesini göster
+    for color in hex_colors:
+        st.markdown(
+            f"<div style='display: inline-flex; align-items: center; justify-content: center; width: 100px; height: 50px; background-color: {color['hex']}; color: #fff; margin: 10px; border-radius: 10px;'>{color['hex']}<br>({color['percentage']:.2f}%)</div>", 
+            unsafe_allow_html=True)
 
 def main():
     st.title("Resimden Hex Renk Kodu Çıkarıcı")
@@ -30,11 +31,14 @@ def main():
     if uploaded_file is not None:
         image = Image.open(uploaded_file).convert('RGB')
         hex_codes = get_hex_color_codes(image)
-        st.write("En Sık Bulunan 20 Hex Renk Kodu ve Yüzdelikleri:")
-        for hex_color, percentage in hex_codes:
-            display_color(hex_color, percentage)
+        st.write("En Sık Bulunan 20 Hex Renk Kodu:")
+        # Renkleri satır satır göster
+        col1, col2, col3, col4 = st.columns(4)
+        cols = [col1, col2, col3, col4]
+        for index, color_info in enumerate(hex_codes):
+            with cols[index % 4]:
+                display_colors([color_info])
         st.image(image, caption='Yüklenen Resim', use_column_width=True)
 
 if __name__ == "__main__":
     main()
-
